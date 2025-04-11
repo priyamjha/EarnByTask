@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center ">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body text-center p-4">
+                <!-- Joke Title -->
+                <h2 class="fw-bold text-primary">🤣 Enjoy Your Joke! 🤣</h2>
+                <hr class="w-50 mx-auto">
+
+                <!-- Joke Text -->
+                <p class="lead fst-italic text-dark">"{{ joke }}"</p>
+
+                <!-- Remaining Points -->
+                <div class="mt-4">
+                    <p class="mb-1 text-muted">Your remaining points: 
+                        <strong class="text-success">{{ user.points }}</strong>
+                    </p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-4">
+                    <a href="{% url 'show_joke' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-emoji-laughing"></i> See Another Joke (-20 pts)
+                    </a>
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                        <i class="bi bi-house-door"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

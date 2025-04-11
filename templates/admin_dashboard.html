@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="display-5 fw-bold lh-1 mb-3">Hello! Admin</h1>
+<p class="col-md-8 fs-4">Welcome, {{ user.full_name|title }}!</p>
+
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">Admin Dashboard</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+       
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<header class="hero bg-light text-center py-5">
+    <div class="container">
+        <h1 class="display-4">Welcome, {{ user.full_name|title }}</h1>
+        <p class="lead">Your personal dashboard to manage your apps.</p>
+    </div>
+</header>
+
+<!-- App List Section -->
+<div class="container my-5">
+    <h2 class="section-heading text-primary text-center mb-4">Manage Apps</h2>
+    
+    <div class="row">
+        {% for app in apps %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3 p-3">
+                <div class="card-body text-center">
+                    <!-- App Logo -->
+                    <div class="app-logo mb-3">
+                        {% if app.logo %}
+                            <img src="{{ app.logo.url }}" alt="App Logo" class="img-fluid rounded-circle" 
+                                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #6f42c1;">
+                        {% else %}
+                            <div class="placeholder-logo bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle" 
+                                 style="width: 80px; height: 80px;">No Logo</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- App Name -->
+                    <h5 class="card-title fw-bold">{{ app.name }}</h5>
+                    
+                    <!-- Category & Subcategory -->
+                    <p class="mb-1">
+                        <span class="badge bg-primary">{{ app.category.name }}</span>
+                        <span class="badge bg-secondary">{{ app.subcategory.name }}</span>
+                    </p>
+
+                    <!-- Highlighted Points -->
+                    <p class="points-highlight">
+                        <span class="badge bg-success fs-4 fw-bold px-3 py-2">
+                            {{ app.points }} Points
+                        </span>
+                    </p>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ app.download_link }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-download"></i> Download
+                        </a>
+                        <a href="{% url 'update_app' app.id %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="fs-5 text-muted">No apps available.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- Pending Task Approvals Section -->
+<div class="container my-5">
+    <h2 class="section-heading text-primary text-center mb-4">Pending Task Approvals</h2>
+
+    {% if submissions %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>App Name</th>
+                        <th>Submitted Image</th>
+                        <th>Points</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ submission.user.full_name }}</td>
+                        <td>{{ submission.app.name }}</td>
+                        <td>
+                            {% if submission.image %}
+                                <a href="{{ submission.image.url }}" target="_blank">
+                                    <img src="{{ submission.image.url }}" alt="Task Image" width="80" height="80" class="rounded">
+                                </a>
+                            {% else %}
+                                <span class="text-muted">No Image</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success fs-5 fw-bold px-3 py-2">
+                                {{ submission.app.points }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                                
+                                <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="fs-5 text-muted text-center">No pending approvals.</p>
+    {% endif %}
+</div>
+
+    
+    
+    <style>
+        .section-heading {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+    
+        .list-group-item {
+            border: 1px solid #dee2e6;
+        }
+    
+        .list-group-item:first-child {
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
+    
+        .list-group-item:last-child {
+            border-bottom-left-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
+    
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+    
+        .text-primary {
+            color: #6f42c1 !important; /* Bootstrap primary color */
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+        }
+    
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+        }
+    
+        .app-logo img {
+            padding: 5px;
+        }
+    
+        .points-highlight {
+            margin-top: 10px;
+        }
+    
+        .btn-sm {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+        }
+    
+        @media (max-width: 768px) {
+            .card {
+                padding: 10px;
+            }
+        }
+    </style>
+    
+</div>
+
+{% endblock %}

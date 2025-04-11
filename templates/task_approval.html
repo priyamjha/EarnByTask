@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-primary text-center mb-4">Task Approvals</h2>
+
+    {% if submissions %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>App Name</th>
+                        <th>Submitted Image</th>
+                        <th>Points</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ submission.user.full_name }}</td>
+                        <td>{{ submission.app.name }}</td>
+                        <td>
+                            {% if submission.image %}
+                                <a href="{{ submission.image.url }}" target="_blank">
+                                    <img src="{{ submission.image.url }}" alt="Task Image" width="80" height="80" class="rounded">
+                                </a>
+                            {% else %}
+                                <span class="text-muted">No Image</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success fs-5 fw-bold px-3 py-2">
+                                {{ submission.app.points }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="submission_id" value="{{ submission.id }}">
+                                
+                                <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> Reject
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="fs-5 text-muted text-center">No pending approvals.</p>
+    {% endif %}
+</div>
+{% endblock %}

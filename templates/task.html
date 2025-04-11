@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Upload Your Image</h2>
+    <form method="post" enctype="multipart/form-data" class="dropzone" id="task-form">
+        {% csrf_token %}
+        <input type="file" name="image" id="fileInput" hidden>
+        <div id="dropzone" class="drag-drop-box text-center">
+            <p>Drag & Drop your image here or <span id="browse">Browse</span></p>
+        </div>
+        <button type="submit" class="btn btn-success mt-3">Upload</button>
+    </form>
+</div>
+
+<style>
+    .drag-drop-box {
+        border: 2px dashed #007bff;
+        padding: 50px;
+        cursor: pointer;
+        background: #f8f9fa;
+    }
+</style>
+
+<script>
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+
+    dropzone.addEventListener("click", () => fileInput.click());
+
+    dropzone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropzone.style.background = "#e0e0e0";
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+        dropzone.style.background = "#f8f9fa";
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropzone.style.background = "#f8f9fa";
+        fileInput.files = event.dataTransfer.files;
+    });
+</script>
+{% endblock %}

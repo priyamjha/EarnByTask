@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-warning text-white text-center">
+            <h3 class="mb-0">✏️ Update App - {{ app.name }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">App Name</label>
+                    {{ form.name }}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Download Link</label>
+                    {{ form.download_link }}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Points</label>
+                    {{ form.points }}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Subcategory</label>
+                        {{ form.subcategory }}
+                    </div>
+                </div>
+                
+                <!-- Logo Upload Field -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">App Logo</label>
+                    {{ form.logo }}
+                </div>
+                
+                <!-- Logo Preview -->
+                <div class="mb-3 text-center">
+                    <label class="form-label fw-bold">Current Logo</label>
+                    <br>
+                    {% if app.logo %}
+                        <img id="logo-preview" src="{{ app.logo.url }}" alt="Logo Preview" 
+                            class="rounded shadow-sm" 
+                            style="max-width: 150px; border: 1px solid #ddd; padding: 5px;">
+                    {% else %}
+                        <p>No logo uploaded</p>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn btn-success me-2">
+                        <i class="bi bi-save"></i> Update App
+                    </button>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Subcategory Fetch & Logo Preview -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let categorySelect = document.querySelector("#id_category");
+    let subcategorySelect = document.querySelector("#id_subcategory");
+    let logoInput = document.querySelector("input[type='file']");
+    let logoPreview = document.getElementById("logo-preview");
+
+    if (categorySelect) {
+        categorySelect.addEventListener("change", function() {
+            let categoryId = this.value;
+            fetch(`/get_subcategories/?category_id=${categoryId}`)
+            .then(response => response.json())
+            .then(data => {
+                subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+                data.forEach(subcategory => {
+                    let option = document.createElement("option");
+                    option.value = subcategory.id;
+                    option.textContent = subcategory.name;
+                    subcategorySelect.appendChild(option);
+                });
+            });
+        });
+    }
+
+    if (logoInput) {
+        logoInput.addEventListener("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    logoPreview.src = e.target.result;
+                    logoPreview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

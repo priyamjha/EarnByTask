@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>Submit Task for {{ app.name }}</h3>
+        </div>
+        <div class="card-body">
+            {% if existing_submission %}
+                <div class="alert alert-info text-center">
+                    <p>You have already submitted an image.</p>
+                    <img src="{{ existing_submission.image.url }}" alt="Submitted Image" class="img-fluid rounded border mt-3" style="max-width: 300px;">
+                </div>
+            {% else %}
+                <form method="POST" enctype="multipart/form-data" class="text-center">
+                    {% csrf_token %}
+                    <div id="drop-area" class="border border-primary rounded p-4 d-flex flex-column align-items-center justify-content-center" style="cursor: pointer; background-color: #f8f9fa;">
+                        <p class="mb-2">Drag & Drop your image here or click to select</p>
+                        <input type="file" id="fileInput" name="image" class="d-none" accept="image/*">
+                        <button type="button" class="btn btn-outline-primary" onclick="fileInput.click();">Choose File</button>
+                    </div>
+
+                    <div id="preview-container" class="mt-3 d-none">
+                        <p class="fw-bold">Preview:</p>
+                        <img id="preview-img" src="" alt="Image Preview" class="img-fluid rounded border p-2" style="max-width: 200px;">
+                    </div>
+
+                    <button type="submit" class="btn btn-success mt-4">Submit Task</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    let dropArea = document.getElementById("drop-area");
+    let fileInput = document.getElementById("fileInput");
+    let previewContainer = document.getElementById("preview-container");
+    let previewImg = document.getElementById("preview-img");
+
+    dropArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropArea.style.background = "#e9ecef";
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.style.background = "#f8f9fa";
+    });
+
+    dropArea.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropArea.style.background = "#f8f9fa";
+
+        let files = event.dataTransfer.files;
+        if (files.length > 0) {
+            let file = files[0];
+            let dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            showPreview(file);
+        }
+    });
+
+    fileInput.addEventListener("change", (event) => {
+        let file = event.target.files[0];
+        showPreview(file);
+    });
+
+    function showPreview(file) {
+        if (file && file.type.startsWith("image/")) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewContainer.classList.remove("d-none");
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+{% endblock %}
